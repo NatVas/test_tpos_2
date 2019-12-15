@@ -7,19 +7,11 @@ import sys
 import btrfsutil
 import subprocess
 import traceback
-import reque  # !/usr/bin/env python3
-import os
-import random
-from cgroups import Cgroup
-from pyroute2 import IPDB, NetNS, netns
-import sys
-import btrfsutil
-import subprocess
-import traceback
 import requests
 import json
 import tarfile
 import uuid
+
 
 btrfs_path = '/home/vagrant/mocker'
 
