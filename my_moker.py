@@ -7,7 +7,9 @@ list_of_dir = []
 
 def init(directory):
     btrfsutil.create_subvolume(directory);
+    
     list_of_dir.append(directory)
+    print(list_of_dir)
     return len(list_of_dir-1)
 
 def pull():
