@@ -33,9 +33,20 @@ def mocker_check(uuid1):
 
 def init(directory):
     uuid1 = 'img_' + str(random.randint(42002, 42254))
-
-    os.system('ls -l')
-
+    if os.path.exists(directory):
+        if mocker_check(uuid1) == 0:
+            print('UUID conflict, retrying...')
+            mocker_init(directory)
+            return
+        btrfsutil.create_subvolume(btrfs_path + '/' + str(uuid1))
+        os.system('sudo cp -rf --reflink=auto ' + directory + '/* ' + btrfs_path + '/' + str(uuid))
+        if not os.path.exists(btrfs_path + '/' + str(uuid1) + '/img.source'):
+            file = open(btrfs_path + '/' + str(uuid1) + '/img.source', 'w')
+            file.write(directory)
+            file.close()
+        print("created " + str(uuid1))
+    else:
+        print("Noo directory named " + directory + " exists")
 
 def pull():
     pass
