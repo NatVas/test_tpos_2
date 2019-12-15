@@ -7,7 +7,7 @@ import sys
 import btrfsutil
 import subprocess
 import traceback
-import reque#!/usr/bin/env python3
+import reque  # !/usr/bin/env python3
 import os
 import random
 from cgroups import Cgroup
@@ -20,9 +20,12 @@ import requests
 import json
 import tarfile
 import uuid
+
 btrfs_path = '/home/vagrant/mocker'
 
 list_of_dir = []
+
+
 def mocker_check(uuid1):
     it = btrfsutil.SubvolumeIterator(btrfs_path, info=True, post_order=True)
     try:
@@ -37,17 +40,18 @@ def mocker_check(uuid1):
 
 
 def init(directory):
-
     uuid1 = 'img_' + str(random.randint(42002, 42254))
-   
+
     os.system('ls -l')
- 
+
+
 def pull():
     pass
 
 
 def rmi(id_directory):
     pass
+
 
 def images():
     pass
@@ -77,8 +81,6 @@ def help():
     pass
 
 
-
-
 if __name__ == "__main__":
     if len(sys.argv) > 1:
         if sys.argv[1] == "init":
@@ -100,7 +102,7 @@ if __name__ == "__main__":
             run()
 
         if sys.argv[1] == "exec":
-            exec()
+            exec ()
 
         if sys.argv[1] == "logs":
             logs()
@@ -111,16 +113,16 @@ if __name__ == "__main__":
         if sys.argv[1] == "help":
             help()
 
-
-
-
 sts
 import json
 import tarfile
 import uuid
+
 btrfs_path = '/home/vagrant/mocker'
 
 list_of_dir = []
+
+
 def mocker_check(uuid1):
     it = btrfsutil.SubvolumeIterator(btrfs_path, info=True, post_order=True)
     try:
@@ -135,31 +137,19 @@ def mocker_check(uuid1):
 
 
 def init(directory):
-
     uuid1 = 'img_' + str(random.randint(42002, 42254))
-    """if os.path.exists(directory):
-        if mocker_check(uuid1) == 0:
-            print('UUID conflict, retrying...')
-            init(directory)
-            return
-        #btrfsutil.create_subvolume(btrfs_path + '/' + str(uuid1))
-        #os.system('sudo cp -rf --reflink=auto ' + directory + '/* ' + btrfs_path + '/' + str(uuid))
-       """
-       os.system('ls -l')
-        """if not os.path.exists(btrfs_path + '/' + str(uuid1) + '/img.source'):
-            file = open(btrfs_path + '/' + str(uuid1) + '/img.source', 'w')
-            file.write(directory)
-            file.close()
-        print("created " + str(uuid1))
-    else:
-        print("Noo directory named " + directory + " exists")
-"""
+
+    os.system('ls -l')
+ 
+
+
 def pull():
     pass
 
 
 def rmi(id_directory):
     pass
+
 
 def images():
     pass
@@ -189,8 +179,6 @@ def help():
     pass
 
 
-
-
 if __name__ == "__main__":
     if len(sys.argv) > 1:
         if sys.argv[1] == "init":
@@ -212,7 +200,7 @@ if __name__ == "__main__":
             run()
 
         if sys.argv[1] == "exec":
-            exec()
+            exec ()
 
         if sys.argv[1] == "logs":
             logs()
