@@ -6,7 +6,7 @@ list_of_dir = []
 
 
 def init(directory):
-    btrfsutil.btrfs_util_create_subvolume(directory, 0, NULL, NULL);
+    btrfsutil.create_subvolume(directory, 0, NULL, NULL);
     list_of_dir.append(directory)
     return len(list_of_dir-1)
 
