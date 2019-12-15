@@ -36,7 +36,7 @@ def init(directory):
             init(directory)
             return
         btrfsutil.create_subvolume(btrfs_path + '/' + str(uuid1))
-        os.system('cp -rf --reflink=auto ' + directory + '/* ' + btrfs_path + '/' + str(uuid))
+        os.system('sudo cp -rf --reflink=auto ' + directory + '/* ' + btrfs_path + '/' + str(uuid))
         if not os.path.exists(btrfs_path + '/' + str(uuid1) + '/img.source'):
             file = open(btrfs_path + '/' + str(uuid1) + '/img.source', 'w')
             file.write(directory)
