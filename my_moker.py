@@ -1,8 +1,7 @@
 import sys
-import requests
+
 import os
-import json
-import tarfile
+
 import btrfsutil
 
 list_of_dir = []
