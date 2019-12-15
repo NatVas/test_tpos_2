@@ -39,8 +39,8 @@ def init(directory):
             mocker_init(directory)
             return
         btrfsutil.create_subvolume(btrfs_path + '/' + str(uuid1))
-        print('sudo cp -rf --reflink=auto ' + directory + '/* ' + btrfs_path + '/' + str(uuid))
-        os.system('sudo cp -rf --reflink=auto ' + directory + '/* ' + btrfs_path + '/' + str(uuid))
+        print('sudo cp -rf --reflink=auto ' + directory + '/* ' + btrfs_path + '/' + str(uuid1))
+        os.system('sudo cp -rf --reflink=auto ' + directory + '/* ' + btrfs_path + '/' + str(uuid1))
         if not os.path.exists(btrfs_path + '/' + str(uuid1) + '/img.source'):
             file = open(btrfs_path + '/' + str(uuid1) + '/img.source', 'w')
             file.write(directory)
