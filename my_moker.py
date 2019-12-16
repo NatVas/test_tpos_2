@@ -33,7 +33,7 @@ def mocker_check(image):
 def rmi(image):
     if image[0: 3] == "img":
         btrfsutil.delete_subvolume(btrfs_path + '/' + str(image))
-        print('Removed ' + str(uuid1))
+        print('Removed ' + str(image))
     else:
         print('This is not container')
 
