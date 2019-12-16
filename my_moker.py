@@ -36,7 +36,7 @@ def rmi(uuid1):
     созданный контейнер
     '''
     print("1")
-    if uuid1[0: 3] == "ps_":
+    if uuid1[0: 3] == "img_":
         if mocker_check(uuid1) == 1:
             print('No container named ' + str(uuid1))
             return
