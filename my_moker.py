@@ -15,9 +15,21 @@ import uuid
 
 btrfs_path = '/home/vagrant/mocker'
 
-list_of_img = []
+def auth(library, image):
+    token_req = requests.get(
+        'https://auth.docker.io/token?service=registry.docker.io&scope=repository:%s/%s:pull'
+        % (library, image))
+    return token_req.json()['token']
 
 
+def get_manifest(image, tag, registry_base, library, headers):
+    print("Fetching manifest for %s:%s..." % (image, tag))
+
+    manifest = requests.get('%s/%s/%s/manifests/%s' %
+                            (registry_base, library, image, tag),
+                            headers=headers)
+    print(manifest)
+    return manifest.json()
 def mocker_check(image):
     it = btrfsutil.SubvolumeIterator(btrfs_path, info=True, post_order=True)
     try:
