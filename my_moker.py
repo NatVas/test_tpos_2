@@ -55,7 +55,7 @@ def init(directory):
       
 
 def pull(image):
-      registry_base = 'https://registry-1.docker.io/v2'
+    registry_base = 'https://registry-1.docker.io/v2'
     library = 'library'
     headers = {'Authorization': 'Bearer %s' % auth(library, image)}
     manifest = get_manifest(image, 'latest', registry_base, library, headers)
@@ -89,7 +89,7 @@ def pull(image):
 
         with tarfile.open(local_filename, 'r') as tar:
             tar.extractall(str(contents_path))
-    mocker_init(dl_path)
+    init(dl_path)
 
 def images():
     pass
