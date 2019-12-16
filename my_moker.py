@@ -261,7 +261,7 @@ if __name__ == "__main__":
             run(sys.argv[2], sys.argv[3])
 
         if sys.argv[1] == "exec":
-            exec (sys.argv[2 :])
+            exec (sys.argv[2], sys.argv[3 :])
 
         if sys.argv[1] == "logs":
             logs()
