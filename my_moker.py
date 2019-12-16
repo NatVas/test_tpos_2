@@ -40,7 +40,7 @@ def rmi(uuid1):
         if mocker_check(uuid1) == 1:
             print('No container named ' + str(uuid1))
             return
-        print(btrfs_path + '/' + str(uuid1)))
+        print(btrfs_path + '/' + str(uuid1))
         btrfsutil.delete_subvolume(btrfs_path + '/' + str(uuid1))
 
         print('Removed ' + str(uuid1))
