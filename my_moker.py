@@ -219,10 +219,7 @@ def run(uuid1, *args):
     print('Creating', uuid_name)
 
     
-def exec(uuid_name, *args):
-    if uuid_name[0:2] != 'ps':
-        print ('It is not container')
-        return
+def exec(uuid_name, *args):   
     netns_name = 'netns_' + str(uuid_name)
     cmd = args
 
