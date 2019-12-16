@@ -30,6 +30,21 @@ def mocker_check(uuid1):
     finally:
         it.close()
 
+def rmi(uuid1):
+    '''+
+    rm <container_id> - удаляет ранее
+    созданный контейнер
+    '''
+    if uuid1[0: 3] == "ps_":
+        if mocker_check(uuid1) == 1:
+            print('No container named ' + str(uuid1))
+            return
+        btrfsutil.delete_subvolume(btrfs_path + '/' + str(uuid1))
+        cg = Cgroup(uuid1)
+        cg.delete()
+        print('Removed ' + str(uuid1))
+    else:
+        print('This is not container')
 
 def init(directory):
     uuid1 = 'img_' + str(random.randint(42002, 42254))
@@ -116,4 +131,3 @@ if __name__ == "__main__":
 
         if sys.argv[1] == "help":
             help()
-
