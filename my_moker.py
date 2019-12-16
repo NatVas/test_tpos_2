@@ -184,7 +184,7 @@ def run(uuid1, *args):
     file_log.write(str(process.stderr) + '\n')
     file_log.write('Final\n')
     NetNS(netns_name).close()
-    netns.remove(netns_name)
+   # netns.remove(netns_name)
     file_log.write('done\n')
     print('Creating', uuid_name)
 
@@ -192,7 +192,7 @@ def run(uuid1, *args):
 def exec(uuid_name, *args):
     netns_name = 'netns_' + str(uuid_name)
     
-        file_log = open(btrfs_path + '/' + uuid_name + '/' + uuid_name + '.log', 'w')
+    file_log = open(btrfs_path + '/' + uuid_name + '/' + uuid_name + '.log', 'w')
     file = open(btrfs_path + '/' + uuid_name + '/' + uuid_name + '.cmd', 'w')
     file.write(str(cmd))
     file.close()
