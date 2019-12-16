@@ -69,10 +69,6 @@ def pull():
     pass
 
 
-def rmi(id_directory):
-    pass
-
-
 def images():
     pass
 
