@@ -219,7 +219,7 @@ def run(uuid1, *args):
     print('Creating', uuid_name)
 
     
-def exec(uuid_name, *args):   
+def exec1(uuid_name, *args):   
     netns_name = 'netns_' + str(uuid_name)
     cmd = args
 
@@ -308,7 +308,7 @@ if __name__ == "__main__":
             run(sys.argv[2], sys.argv[3])
 
         if sys.argv[1] == "exec":
-            exec (sys.argv[2], sys.argv[3])
+            exec1(sys.argv[2], sys.argv[3])
 
         if sys.argv[1] == "logs":
             logs(sys.argv[2])
