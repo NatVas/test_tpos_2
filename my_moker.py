@@ -54,9 +54,42 @@ def init(directory):
         print("Noo directory named " + directory + " exists")
       
 
-def pull():
-    pass
+def pull(image):
+      registry_base = 'https://registry-1.docker.io/v2'
+    library = 'library'
+    headers = {'Authorization': 'Bearer %s' % auth(library, image)}
+    manifest = get_manifest(image, 'latest', registry_base, library, headers)
 
+    image_name_friendly = manifest['name'].replace('/', '_')
+    print(image_name_friendly)
+    with open(os.path.join(btrfs_path, image_name_friendly + '.json'), 'w') as cache:
+        cache.write(json.dumps(manifest))
+
+    dl_path = os.path.join(btrfs_path, image_name_friendly, 'layers')
+    if not os.path.exists(dl_path):
+        os.makedirs(dl_path)
+
+    layer_sigs = [layer['blobSum'] for layer in manifest['fsLayers']]
+    unique_layer_sigs = set(layer_sigs)
+
+    contents_path = os.path.join(dl_path, 'contents')
+    if not os.path.exists(contents_path):
+        os.makedirs(contents_path)
+
+    for sig in unique_layer_sigs:
+        url = '%s/%s/%s/blobs/%s' % (registry_base, library,
+                                     image, sig)
+        local_filename = os.path.join(dl_path, sig) + '.tar'
+
+        r = requests.get(url, stream=True, headers=headers)
+        with open(local_filename, 'wb') as f:
+            for chunk in r.iter_content(chunk_size=1024):
+                if chunk:
+                    f.write(chunk)
+
+        with tarfile.open(local_filename, 'r') as tar:
+            tar.extractall(str(contents_path))
+    mocker_init(dl_path)
 
 def images():
     pass
