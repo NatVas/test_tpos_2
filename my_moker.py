@@ -111,9 +111,82 @@ def ps():
     pass
 
 
-def run():
-    pass
+def run(uuid1, *args):
+    id = uuid.uuid4()
+    uuid_name = 'ps_' + str(id.fields[5])[:4]
+    
+    mac = str(id.fields[5])[:2]
+    if mocker_check(uuid1) == 1:
+        print('No image named ' + str(uuid1))
+        return
+    if mocker_check(uuid_name) == 0:
+        print(uuid_name)
+        print('UUID conflict, retrying...')
+        return
+    cmd = args
+    ip_last_octet = 103
 
+    with IPDB() as ipdb:
+        veth0_name = 'veth0_' + str(uuid_name)
+        veth1_name = 'veth1_' + str(uuid_name)
+        netns_name = 'netns_' + str(uuid_name)
+        bridge_if_name = 'bridge0'
+
+        existing_interfaces = ipdb.interfaces.keys()
+
+        with ipdb.create(kind='veth', ifname=veth0_name, peer=veth1_name) as i1:
+            i1.up()
+            if bridge_if_name not in existing_interfaces:
+                ipdb.create(kind='bridge', ifname=bridge_if_name).commit()
+            i1.set_target('master', bridge_if_name)
+
+        netns.create(netns_name)
+
+        with ipdb.interfaces[veth1_name] as veth1:
+            veth1.net_ns_fd = netns_name
+
+        ns = IPDB(nl=NetNS(netns_name))
+        with ns.interfaces.lo as lo:
+            lo.up()
+        with ns.interfaces[veth1_name] as veth1:
+            veth1.address = "02:42:ac:11:00:{0}".format(mac)
+            veth1.add_ip('10.0.0.{0}/24'.format(ip_last_octet))
+            veth1.up()
+        ns.routes.add({'dst': 'default', 'gateway': '10.0.0.1'}).commit()
+
+    btrfsutil.create_snapshot(btrfs_path + '/' + uuid1, btrfs_path + '/' + uuid_name)
+    file_log = open(btrfs_path + '/' + uuid_name + '/' + uuid_name + '.log', 'w')
+    file = open(btrfs_path + '/' + uuid_name + '/' + uuid_name + '.cmd', 'w')
+    file.write(str(cmd))
+    file.close()
+    cg = Cgroup(uuid_name)
+    cg.set_cpu_limit(50)
+    cg.set_memory_limit(500)
+
+    def in_cgroup():
+        try:
+            pid = os.getpid()
+            cg = Cgroup(uuid_name)
+
+            netns.setns(netns_name)
+            cg.add(pid)
+
+        except Exception as e:
+            traceback.print_exc()
+            file_log.write("Failed to preexecute function")
+            file_log.write(e)
+
+    cmd = list(args)
+    file_log.write('Running ' + cmd[0] + '\n')
+    process = subprocess.Popen(cmd, preexec_fn=in_cgroup, shell=True)
+    process.wait()
+    file_log.write('Error ')
+    file_log.write(str(process.stderr) + '\n')
+    file_log.write('Final\n')
+    NetNS(netns_name).close()
+    netns.remove(netns_name)
+    file_log.write('done\n')
+    print('Creating', uuid_name)
 
 def exec():
     pass
@@ -149,7 +222,7 @@ if __name__ == "__main__":
             ps()
 
         if sys.argv[1] == "run":
-            run()
+            run(sys.argv[2], sys.argv[3])
 
         if sys.argv[1] == "exec":
             exec ()
