@@ -125,7 +125,7 @@ if __name__ == "__main__":
             init(sys.argv[2])
 
         if sys.argv[1] == "pull":
-            pull()
+            pull(sys.argv[2])
 
         if sys.argv[1] == "rmi":
             rmi(sys.argv[2])
