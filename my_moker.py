@@ -50,10 +50,9 @@ def init(directory):
             file.write(directory)
             file.close()
         print("created " + str(image))
-        return str(image)
     else:
         print("Noo directory named " + directory + " exists")
-        return None
+      
 
 def pull():
     pass
