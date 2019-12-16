@@ -35,13 +35,14 @@ def rmi(uuid1):
     rm <container_id> - удаляет ранее
     созданный контейнер
     '''
+    print("1")
     if uuid1[0: 3] == "ps_":
         if mocker_check(uuid1) == 1:
             print('No container named ' + str(uuid1))
             return
+        print(btrfs_path + '/' + str(uuid1)))
         btrfsutil.delete_subvolume(btrfs_path + '/' + str(uuid1))
-        cg = Cgroup(uuid1)
-        cg.delete()
+
         print('Removed ' + str(uuid1))
     else:
         print('This is not container')
