@@ -15,14 +15,14 @@ import uuid
 
 btrfs_path = '/home/vagrant/mocker'
 
-list_of_dir = []
+list_of_img = []
 
 
-def mocker_check(uuid1):
+def mocker_check(image):
     it = btrfsutil.SubvolumeIterator(btrfs_path, info=True, post_order=True)
     try:
         for path, info in it:
-            if str(path) == uuid1:
+            if str(path) == image:
                 return 0
         return 1
     except Exception as e:
@@ -30,40 +30,30 @@ def mocker_check(uuid1):
     finally:
         it.close()
 
-def rmi(uuid1):
-    '''+
-    rm <container_id> - удаляет ранее
-    созданный контейнер
-    '''
-    print("1")
-    if uuid1[0: 3] == "img":
-        if mocker_check(uuid1) == 1:
-            print('No container named ' + str(uuid1))
-            return
-        print(btrfs_path + '/' + str(uuid1))
-        btrfsutil.delete_subvolume(btrfs_path + '/' + str(uuid1))
-
+def rmi(image):
+    if image[0: 3] == "img":
+        btrfsutil.delete_subvolume(btrfs_path + '/' + str(image))
         print('Removed ' + str(uuid1))
     else:
         print('This is not container')
 
 def init(directory):
-    uuid1 = 'img_' + str(random.randint(42002, 42254))
+    image = 'img_' + str(random.randint(100, 155))
     if os.path.exists(directory):
-        if mocker_check(uuid1) == 0:
-            print('UUID conflict, retrying...')
+        if mocker_check(image) == 0:
             mocker_init(directory)
             return
-        btrfsutil.create_subvolume(btrfs_path + '/' + str(uuid1))
-        print('sudo cp -rf --reflink=auto ' + directory + '/* ' + btrfs_path + '/' + str(uuid1))
-        os.system('sudo cp -rf --reflink=auto ' + directory + '/* ' + btrfs_path + '/' + str(uuid1))
-        if not os.path.exists(btrfs_path + '/' + str(uuid1) + '/img.source'):
-            file = open(btrfs_path + '/' + str(uuid1) + '/img.source', 'w')
+        btrfsutil.create_subvolume(btrfs_path + '/' + str(image))
+        os.system('sudo cp -rf --reflink=auto ' + directory + '/* ' + btrfs_path + '/' + str(image))
+        if not os.path.exists(btrfs_path + '/' + str(image) + '/img.source'):
+            file = open(btrfs_path + '/' + str(image) + '/img.source', 'w')
             file.write(directory)
             file.close()
-        print("created " + str(uuid1))
+        print("created " + str(image))
+        return str(image)
     else:
         print("Noo directory named " + directory + " exists")
+        return None
 
 def pull():
     pass
