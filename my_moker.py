@@ -188,8 +188,42 @@ def run(uuid1, *args):
     file_log.write('done\n')
     print('Creating', uuid_name)
 
-def exec():
-    pass
+    
+def exec(uuid_name, *args):
+    netns_name = 'netns_' + str(uuid_name)
+    
+        file_log = open(btrfs_path + '/' + uuid_name + '/' + uuid_name + '.log', 'w')
+    file = open(btrfs_path + '/' + uuid_name + '/' + uuid_name + '.cmd', 'w')
+    file.write(str(cmd))
+    file.close()
+    cg = Cgroup(uuid_name)
+    cg.set_cpu_limit(50)
+    cg.set_memory_limit(500)
+
+    def in_cgroup():
+        try:
+            pid = os.getpid()
+            cg = Cgroup(uuid_name)
+
+            netns.setns(netns_name)
+            cg.add(pid)
+
+        except Exception as e:
+            traceback.print_exc()
+            file_log.write("Failed to preexecute function")
+            file_log.write(e)
+
+    cmd = list(args)
+    file_log.write('Running ' + cmd[0] + '\n')
+    process = subprocess.Popen(cmd, preexec_fn=in_cgroup, shell=True)
+    process.wait()
+    file_log.write('Error ')
+    file_log.write(str(process.stderr) + '\n')
+    file_log.write('Final\n')
+    NetNS(netns_name).close()
+    netns.remove(netns_name)
+    file_log.write('done\n')
+
 
 
 def logs():
@@ -225,7 +259,7 @@ if __name__ == "__main__":
             run(sys.argv[2], sys.argv[3])
 
         if sys.argv[1] == "exec":
-            exec ()
+            exec (sys.argv[2], sys.argv[3])
 
         if sys.argv[1] == "logs":
             logs()
