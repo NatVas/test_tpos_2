@@ -194,7 +194,7 @@ def exec(uuid_name, *args):
     cmd = args
 
     
-    file_log = open(btrfs_path + '/' + uuid_name + '/' + uuid_name + '.log', 'w')
+    file_log = open(btrfs_path + '/' + uuid_name + '/' + uuid_name + '.log', 'a')
     file = open(btrfs_path + '/' + uuid_name + '/' + uuid_name + '.cmd', 'w')
     file.write(str(cmd))
     file.close()
