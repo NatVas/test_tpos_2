@@ -191,6 +191,8 @@ def run(uuid1, *args):
     
 def exec(uuid_name, *args):
     netns_name = 'netns_' + str(uuid_name)
+    cmd = args
+
     
     file_log = open(btrfs_path + '/' + uuid_name + '/' + uuid_name + '.log', 'w')
     file = open(btrfs_path + '/' + uuid_name + '/' + uuid_name + '.cmd', 'w')
