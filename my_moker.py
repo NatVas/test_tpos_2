@@ -32,7 +32,7 @@ def get_manifest(image, tag, registry_base, library, headers):
     return manifest.json()
 
 
-def mocker_check(image):
+def check(image):
     it = btrfsutil.SubvolumeIterator(btrfs_path, info=True, post_order=True)
     try:
         for path, info in it:
@@ -68,8 +68,8 @@ def rm(container):
 def init(directory):
     image = 'img_' + str(random.randint(100, 155))
     if os.path.exists(directory):
-        if mocker_check(image) == 0:
-            mocker_init(directory)
+        if check(image) == 0:
+            init(directory)
             return
         btrfsutil.create_subvolume(btrfs_path + '/' + str(image))
         os.system('sudo cp -rf --reflink=auto ' + directory + '/* ' + btrfs_path + '/' + str(image))
@@ -137,14 +137,17 @@ def ps():
 
 
 def run(uuid1, *args):
+    if uuid1[0:2] != 'im':
+        print ('It is not image')
+        return
     id = uuid.uuid4()
     uuid_name = 'ps_' + str(id.fields[5])[:4]
 
     mac = str(id.fields[5])[:2]
-    if mocker_check(uuid1) == 1:
+    if check(uuid1) == 1:
         print('No image named ' + str(uuid1))
         return
-    if mocker_check(uuid_name) == 0:
+    if check(uuid_name) == 0:
         print(uuid_name)
         print('UUID conflict, retrying...')
         return
@@ -165,8 +168,8 @@ def run(uuid1, *args):
                 ipdb.create(kind='bridge', ifname=bridge_if_name).commit()
             i1.set_target('master', bridge_if_name)
 
-        netns.create(netns_name)
 
+        netns.create(netns_name)
         with ipdb.interfaces[veth1_name] as veth1:
             veth1.net_ns_fd = netns_name
 
@@ -184,6 +187,9 @@ def run(uuid1, *args):
     file = open(btrfs_path + '/' + uuid_name + '/' + uuid_name + '.cmd', 'w')
     file.write(str(cmd))
     file.close()
+    
+    user = os.getlogin()
+    create_user_cgroups(user)
     cg = Cgroup(uuid_name)
     cg.set_cpu_limit(50)
     cg.set_memory_limit(500)
@@ -214,6 +220,9 @@ def run(uuid1, *args):
 
 
 def exec(uuid_name, *args):
+    if uuid_name[0:2] != 'ps':
+        print ('It is not container')
+        return
     netns_name = 'netns_' + str(uuid_name)
     cmd = args
 
@@ -221,6 +230,8 @@ def exec(uuid_name, *args):
     file = open(btrfs_path + '/' + uuid_name + '/' + uuid_name + '.cmd', 'w')
     file.write(str(cmd))
     file.close()
+    user = os.getlogin()
+    create_user_cgroups(user)
     cg = Cgroup(uuid_name)
     cg.set_cpu_limit(50)
     cg.set_memory_limit(500)
@@ -229,7 +240,6 @@ def exec(uuid_name, *args):
         try:
             pid = os.getpid()
             cg = Cgroup(uuid_name)
-
             netns.setns(netns_name)
             cg.add(pid)
 
@@ -256,7 +266,7 @@ def logs(ps):
 
 
 def commits(i1, i2):
-    if mocker_check(i2) == 1:
+    if check(i2) == 1:
         rmi(i2)
     btrfsutil.create_snapshot(btrfs_path + '/' + str(i1), btrfs_path + '/' + str(i2))
     print('Created ' + str(i2))
