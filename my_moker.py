@@ -12,8 +12,8 @@ import json
 import tarfile
 import uuid
 
-
 btrfs_path = '/home/vagrant/mocker'
+
 
 def auth(library, image):
     token_req = requests.get(
@@ -30,6 +30,8 @@ def get_manifest(image, tag, registry_base, library, headers):
                             headers=headers)
     print(manifest)
     return manifest.json()
+
+
 def mocker_check(image):
     it = btrfsutil.SubvolumeIterator(btrfs_path, info=True, post_order=True)
     try:
@@ -42,17 +44,23 @@ def mocker_check(image):
     finally:
         it.close()
 
+
 def rmi(image):
     if image[0: 3] == "img":
         btrfsutil.delete_subvolume(btrfs_path + '/' + str(image))
         print('delete ' + str(image))
     else:
         print('This is not image')
-        
+
+
 def rm(container):
+    netns_name = 'netns_' + str(container)
     if container[0: 2] == "ps":
+        NetNS(netns_name).close()
+        netns.remove(netns_name)
         btrfsutil.delete_subvolume(btrfs_path + '/' + str(container))
         print('delete ' + str(container))
+
     else:
         print('This is not container')
 
@@ -72,7 +80,7 @@ def init(directory):
         print("created " + str(image))
     else:
         print("Noo directory named " + directory + " exists")
-      
+
 
 def pull(image):
     registry_base = 'https://registry-1.docker.io/v2'
@@ -111,7 +119,7 @@ def pull(image):
             tar.extractall(str(contents_path))
     init(dl_path)
 
-    
+
 def images():
     for image in os.listdir(btrfs_path):
         if image[0:4] == 'img_':
@@ -123,16 +131,15 @@ def images():
 def ps():
     for ps in os.listdir(btrfs_path):
         if image_file[0:4] == 'img_':
-            file = open(btrfs_path + '/' + ps + '/'+ ps + '/.cmd', 'r')
+            file = open(btrfs_path + '/' + ps + '/' + ps + '/.cmd', 'r')
             print(ps, file.read())
             file.close()
-
 
 
 def run(uuid1, *args):
     id = uuid.uuid4()
     uuid_name = 'ps_' + str(id.fields[5])[:4]
-    
+
     mac = str(id.fields[5])[:2]
     if mocker_check(uuid1) == 1:
         print('No image named ' + str(uuid1))
@@ -196,22 +203,20 @@ def run(uuid1, *args):
 
     cmd = list(args)
     file_log.write('Running ' + cmd[0] + '\n')
-    process = subprocess.Popen(cmd, preexec_fn=in_cgroup, shell=True)
+    cwd1 = str(btrfs_path+'/' + uuid_name)
+    process = subprocess.Popen(cmd, preexec_fn=in_cgroup, shell=True, cwd=cwd1)
     process.wait()
     file_log.write('Error ')
     file_log.write(str(process.stderr) + '\n')
     file_log.write('Final\n')
-    NetNS(netns_name).close()
-   # netns.remove(netns_name)
     file_log.write('done\n')
     print('Creating', uuid_name)
 
-    
+
 def exec(uuid_name, *args):
     netns_name = 'netns_' + str(uuid_name)
     cmd = args
 
-    
     file_log = open(btrfs_path + '/' + uuid_name + '/' + uuid_name + '.log', 'a')
     file = open(btrfs_path + '/' + uuid_name + '/' + uuid_name + '.cmd', 'w')
     file.write(str(cmd))
@@ -235,15 +240,13 @@ def exec(uuid_name, *args):
 
     cmd = list(args)
     file_log.write('Running ' + cmd[0] + '\n')
-    process = subprocess.Popen(cmd, preexec_fn=in_cgroup, shell=True)
+    cwd1 = str(btrfs_path+'/' + uuid_name)
+    process = subprocess.Popen(cmd, preexec_fn=in_cgroup, shell=True, cwd=cwd1)
     process.wait()
     file_log.write('Error ')
     file_log.write(str(process.stderr) + '\n')
     file_log.write('Final\n')
-    NetNS(netns_name).close()
-    netns.remove(netns_name)
     file_log.write('done\n')
-
 
 
 def logs(ps):
@@ -260,7 +263,18 @@ def commits(i1, i2):
 
 
 def help():
-    pass
+    print('Назначение и использование команд:', '\n')
+    print('init <directory> - создать образ контейнера используя указанную директорию как корневую. ')
+    print('pull <image> - скачать последний тег указанного образа с Docker Hub в образ контейнера.')
+    print('rmi <image_id> - удаляет образ c названием <image_id> из локального хранилища.')
+    print('images - выводит список локальный образов')
+    print('ps - выводит список контейнеров')
+    print('run <image_id> <command> - создает контейнер из указанного image_id и запускает его с указанной командой')
+    print('exec <container_id> <command> - запускает указанную команду внутри уже запущенного указанного контейнера')
+    print('logs <container_id> - выводит логи указанного контейнера')
+    print('rm <container_id> - удаляет контейнер с названием <container_id>')
+    print('commit <container_id> <image_id> - создает новый образ, применяя изменения из образа container_id к образу image_id')
+    print('help - выводит help по командам')
 
 
 if __name__ == "__main__":
@@ -273,7 +287,7 @@ if __name__ == "__main__":
 
         if sys.argv[1] == "rmi":
             rmi(sys.argv[2])
-            
+
         if sys.argv[1] == "rm":
             rm(sys.argv[2])
 
