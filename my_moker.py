@@ -45,9 +45,17 @@ def mocker_check(image):
 def rmi(image):
     if image[0: 3] == "img":
         btrfsutil.delete_subvolume(btrfs_path + '/' + str(image))
-        print('Removed ' + str(image))
+        print('delete ' + str(image))
+    else:
+        print('This is not image')
+        
+def rm(container):
+    if container[0: 2] == "ps":
+        btrfsutil.delete_subvolume(btrfs_path + '/' + str(container))
+        print('delete ' + str(container))
     else:
         print('This is not container')
+
 
 def init(directory):
     image = 'img_' + str(random.randint(100, 155))
@@ -103,12 +111,22 @@ def pull(image):
             tar.extractall(str(contents_path))
     init(dl_path)
 
+    
 def images():
-    pass
+    for image in os.listdir(btrfs_path):
+        if image[0:4] == 'img_':
+            file = open(btrfs_path + '/' + image + '/img.source', 'r')
+            print(image, file.read())
+            file.close()
 
 
 def ps():
-    pass
+    for ps in os.listdir(btrfs_path):
+        if image_file[0:4] == 'img_':
+            file = open(btrfs_path + '/' + ps + '/'+ ps + '/.cmd', 'r')
+            print(ps, file.read())
+            file.close()
+
 
 
 def run(uuid1, *args):
@@ -228,12 +246,17 @@ def exec(uuid_name, *args):
 
 
 
-def logs():
-    pass
+def logs(ps):
+    file_log = open(btrfs_path + '/' + ps + '/' + ps + '.log', 'r')
+    print(ps)
+    print(file_log.read())
 
 
-def commits():
-    pass
+def commits(i1, i2):
+    if mocker_check(i2) == 1:
+        rmi(i2)
+    btrfsutil.create_snapshot(btrfs_path + '/' + str(i1), btrfs_path + '/' + str(i2))
+    print('Created ' + str(i2))
 
 
 def help():
@@ -250,6 +273,9 @@ if __name__ == "__main__":
 
         if sys.argv[1] == "rmi":
             rmi(sys.argv[2])
+            
+        if sys.argv[1] == "rm":
+            rm(sys.argv[2])
 
         if sys.argv[1] == "images":
             images()
@@ -264,10 +290,10 @@ if __name__ == "__main__":
             exec (sys.argv[2], sys.argv[3])
 
         if sys.argv[1] == "logs":
-            logs()
+            logs(sys.argv[2])
 
         if sys.argv[1] == "commits":
-            commits()
+            commits(sys.argv[2], sys.argv[3])
 
         if sys.argv[1] == "help":
             help()
